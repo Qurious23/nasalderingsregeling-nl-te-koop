@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Domein te koop</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#f6f5f1;--card:#fff;--ink:#16161a;--muted:#6b6b73;--accent:#1f7a4d;--line:#e4e2dc}
+  @media (prefers-color-scheme:dark){:root{--bg:#111113;--card:#1a1a1d;--ink:#f2f2f0;--muted:#9a9aa3;--accent:#3fbf7f;--line:#2a2a2e}}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px 16px;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif}
+  main{width:100%;max-width:560px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:40px 32px}
+  .tag{display:inline-block;font-size:13px;font-weight:600;color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);padding:6px 12px;border-radius:999px}
+  h1{font-size:clamp(26px,6vw,38px);font-weight:800;margin:18px 0 8px;word-break:break-word;letter-spacing:-.02em}
+  p{color:var(--muted);line-height:1.6;margin:0 0 24px}
+  .price{font-size:15px;color:var(--ink);font-weight:600;margin-bottom:24px}
+  form{display:grid;gap:12px}
+  input,textarea{width:100%;font:inherit;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+  textarea{min-height:90px;resize:vertical}
+  button{font:inherit;font-weight:600;padding:14px;border:0;border-radius:10px;background:var(--accent);color:#fff;cursor:pointer}
+  button:hover{filter:brightness(1.08)}
+  small{display:block;margin-top:18px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<main>
+  <span class="tag">Dit domein is te koop</span>
+  <h1 id="domain">domein.nl</h1>
+  <p id="pitch">Een sterke, herkenbare .nl-naam, direct over te nemen.</p>
+  <div class="price" id="price">Biedingen vanaf €200</div>
+  <form id="f">
+    <input name="naam" placeholder="Je naam" required>
+    <input name="email" type="email" placeholder="Je e-mailadres" required>
+    <input name="bod" type="number" min="200" step="1" placeholder="Je bod (€, minimaal 200)" inputmode="numeric" required>
+    <div id="err" style="display:none;color:#c0392b;font-size:14px"></div>
+    <textarea name="bericht" placeholder="Bericht (optioneel)"></textarea>
+    <button type="submit">Doe een bod</button>
+  </form>
+  <small>Overdracht veilig via een escrow-dienst of een verhuiscode.</small>
+</main>
+<script>
+  // Eén pagina voor alle domeinen: tekst hangt af van de hostnaam.
+  const CONTACT = "quinn.rooswinkel@gmail.com";
+  const MINIMUM = 200;
+  const DOMEINEN = {
+    "nasalderingsregeling.nl": {
+      pitch: "Het salderen stopt per 1 januari 2027. Deze naam past bij een vergelijker, thuisbatterij-installateur of energieadviseur die dat zoekverkeer wil opvangen.",
+      prijs: ""
+    },
+    "airco-installateur-amsterdam.nl": {
+      pitch: "Een exacte zoekterm voor airco-installatie in Amsterdam. Ideaal voor een lokale installateur die meer aanvragen wil.",
+      prijs: ""
+    }
+  };
+  const host = location.hostname.replace(/^www\./, "");
+  const d = DOMEINEN[host];
+  document.getElementById("domain").textContent = host || "domein.nl";
+  document.title = host + " is te koop";
+  if (d) {
+    document.getElementById("pitch").textContent = d.pitch;
+    if (d.prijs) document.getElementById("price").textContent = "Vraagprijs: " + d.prijs;
+  }
+  document.getElementById("f").addEventListener("submit", e => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const bod = Number(String(f.get("bod")).replace(",", "."));
+    const err = document.getElementById("err");
+    if (!(bod >= MINIMUM)) {
+      err.textContent = "Biedingen onder €" + MINIMUM + " worden niet in behandeling genomen.";
+      err.style.display = "block";
+      return;
+    }
+    err.style.display = "none";
+    const body = `Naam: ${f.get("naam")}\nE-mail: ${f.get("email")}\nBod: ${f.get("bod") || "-"}\n\n${f.get("bericht") || ""}`;
+    location.href = `mailto:${CONTACT}?subject=${encodeURIComponent("Bod op " + host)}&body=${encodeURIComponent(body)}`;
+  });
+</script>
+</body>
+</html>
